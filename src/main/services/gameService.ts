@@ -1,7 +1,7 @@
 import { join } from 'path'
 import { promises as fs, readFileSync } from 'fs'
 import { execa } from 'execa'
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, dialog, shell } from 'electron'
 import { existsSync } from 'fs'
 import dependencyService from './dependencyService'
 import mirrorService from './mirrorService'
@@ -212,8 +212,37 @@ class GameService extends EventEmitter implements GamesAPI {
         }
       }
 
-      if (!data) {
-        throw new Error('vrp-public.json not found in userData or bundled resources')
+      // If no file found or credentials are blank, copy the template and prompt the user
+      if (!data || !data.baseUri || !data.password) {
+        // Ensure the user has a copy to edit
+        const userFileExists = await fileExists(userFile)
+        if (!userFileExists) {
+          const bundledExists = await fileExists(bundledFile)
+          if (bundledExists) {
+            await fs.copyFile(bundledFile, userFile)
+          } else {
+            await fs.writeFile(userFile, JSON.stringify({ baseUri: '', password: '' }), 'utf-8')
+          }
+        }
+
+        await dialog.showMessageBox({
+          type: 'info',
+          title: 'VRP Configuration Required',
+          message: 'Please configure your VRP credentials',
+          detail:
+            `A vrp-public.json file has been created at:\n\n` +
+            `${userFile}\n\n` +
+            `Open this file in a text editor and fill in your baseUri and password:\n\n` +
+            `{"baseUri":"https://your-url-here/","password":"your-password-here"}\n\n` +
+            `Then restart the app.`,
+          buttons: ['Open File Location', 'OK']
+        }).then((result) => {
+          if (result.response === 0) {
+            shell.showItemInFolder(userFile)
+          }
+        })
+
+        throw new Error('VRP credentials not configured. Please edit vrp-public.json and restart.')
       }
 
       this.vrpConfig = data
