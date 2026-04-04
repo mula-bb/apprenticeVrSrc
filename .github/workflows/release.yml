@@ -61,7 +61,7 @@ jobs:
             echo "BUILD_COMMAND=npx electron-vite build && npx electron-builder --mac --x64 --arm64 --publish never" >> $GITHUB_OUTPUT
             echo "ARTIFACT_PATH=${OUTPUT_DIR}/${PRODUCT_NAME}-${VERSION}-*.dmg" >> $GITHUB_OUTPUT
           elif [ "$RUNNER_OS" == "Linux" ]; then
-            echo "BUILD_COMMAND=npx electron-vite build && npx electron-builder --linux --x64 --publish never" >> $GITHUB_OUTPUT
+            echo "BUILD_COMMAND=npx electron-vite build && npx electron-builder --linux --x64 --arm64 --publish never" >> $GITHUB_OUTPUT
             echo "ARTIFACT_PATH=${OUTPUT_DIR}/${PRODUCT_NAME}-${VERSION}-*.[Ad]*" >> $GITHUB_OUTPUT
           fi
 
@@ -96,8 +96,9 @@ jobs:
         with:
           tag_name: v${{ needs.build.outputs.package_version }}
           name: Release v${{ needs.build.outputs.package_version }}
-          draft: false
+          draft: true
           prerelease: false
+          generate_release_notes: true
           files: |
             artifacts/build-artifact-windows-latest/*
             artifacts/build-artifact-macos-latest/*
