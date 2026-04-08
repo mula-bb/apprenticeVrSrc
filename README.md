@@ -12,7 +12,8 @@ ApprenticeVR: VRSrc Edition is a modern, cross-platform desktop application buil
 | File | Platform | Size |
 |------|----------|------|
 | [apprenticevr-2.1.0-arm64.dmg](https://github.com/mula-bb/apprenticeVrSrc/releases/download/v2.1.0/apprenticevr-2.1.0-arm64.dmg) | macOS Apple Silicon (M1–M5) | 123 MB |
-| [apprenticevr-2.1.0-x64.dmg](https://github.com/mula-bb/apprenticeVrSrc/releases/download/v2.1.0/apprenticevr-2.1.0-x64.dmg) | macOS Intel | 130 MB |
+| [apprenticevr-2.1.0-x64.dmg](https://github.com/mula-bb/apprenticeVrSrc/releases/download/v2.1.0/apprenticevr-2.1.0-x64.dmg) | macOS 11+ Intel | 130 MB |
+| [apprenticevr-macOS10.15-x64.dmg](https://github.com/mula-bb/apprenticeVrSrc/releases/download/v2.1.0/apprenticevr-macOS10.15-x64.dmg) | macOS 10.15+ Intel | 115 MB |
 | [apprenticevr-2.1.0-setup-x64.exe](https://github.com/mula-bb/apprenticeVrSrc/releases/download/v2.1.0/apprenticevr-2.1.0-setup-x64.exe) | Windows x64 (installer) | 88 MB |
 | [apprenticevr-2.1.0-portable-x64.exe](https://github.com/mula-bb/apprenticeVrSrc/releases/download/v2.1.0/apprenticevr-2.1.0-portable-x64.exe) | Windows x64 (portable) | 88 MB |
 | [apprenticevr-2.1.0-x86_64.AppImage](https://github.com/mula-bb/apprenticeVrSrc/releases/download/v2.1.0/apprenticevr-2.1.0-x86_64.AppImage) | Linux x64 (any distro) | 117 MB |
