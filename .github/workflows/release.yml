@@ -11,6 +11,7 @@ jobs:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
 
@@ -78,9 +79,14 @@ jobs:
         shell: bash
         run: |
           for i in 1 2 3; do
-            ${{ steps.build_details.outputs.BUILD_COMMAND }} && break
-            echo "Build attempt $i failed, retrying in 30s..."
-            sleep 30
+            ${{ steps.build_details.outputs.BUILD_COMMAND }} && exit 0
+            if [ $i -lt 3 ]; then
+              echo "Build attempt $i failed, retrying in 30s..."
+              sleep 30
+            else
+              echo "All 3 build attempts failed. Aborting this OS."
+              exit 1
+            fi
           done
 
       - name: Upload artifact
@@ -93,6 +99,10 @@ jobs:
   create_release:
     name: Create GitHub Release
     needs: build
+    # Run the release job even if some matrix legs failed, as long as the
+    # workflow wasn't cancelled. Artifacts from failed OSes simply won't exist
+    # and are skipped below.
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -101,6 +111,17 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+
+      - name: List downloaded artifacts
+        shell: bash
+        run: |
+          echo "Artifacts present:"
+          ls -la artifacts || true
+          find artifacts -maxdepth 3 -type f | sort || true
+          if [ -z "$(find artifacts -type f 2>/dev/null)" ]; then
+            echo "::error::No build artifacts were produced by any OS — aborting release."
+            exit 1
+          fi
 
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2.2.2
@@ -112,6 +133,9 @@ jobs:
           draft: true
           prerelease: false
           generate_release_notes: true
+          # fail_on_unmatched_files defaults to false, so any OS whose build
+          # failed will simply be skipped rather than breaking the release.
+          fail_on_unmatched_files: false
           files: |
             artifacts/build-artifact-windows-latest/*
             artifacts/build-artifact-macos-latest/*
