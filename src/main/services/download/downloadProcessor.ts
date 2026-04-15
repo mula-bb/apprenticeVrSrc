@@ -22,7 +22,7 @@ interface DownloadController {
 }
 
 export class DownloadProcessor {
-  private activeDownloads: Map<string, DownloadController> = new Map()
+  private activeDownloads: Map<string, ExecaChildProcess> = new Map()
   private queueManager: QueueManager
   private vrpConfig: VrpConfig | null = null
   private debouncedEmitUpdate: () => void
@@ -72,7 +72,7 @@ export class DownloadProcessor {
     if (downloadController) {
       console.log(`[DownProc] Cancelling download for ${releaseName}...`)
       try {
-        downloadController.cancel()
+        rcloneProcess.kill('SIGTERM')
         console.log(`[DownProc] Cancelled download for ${releaseName}.`)
       } catch (cancelError) {
         console.error(`[DownProc] Error cancelling download for ${releaseName}:`, cancelError)
@@ -156,7 +156,6 @@ export class DownloadProcessor {
 
     if (availableSpace === null) {
       console.warn(`[DownProc] Could not determine available disk space for ${item.releaseName}`)
-      // Continue anyway since we couldn't determine space
     } else if (requiredSpace > 0 && availableSpace < requiredSpace) {
       const errorMsg = `Insufficient disk space. Required: ${formatBytes(requiredSpace)}, Available: ${formatBytes(availableSpace)}`
       console.error(`[DownProc] ${errorMsg} for ${item.releaseName}`)
@@ -180,7 +179,6 @@ export class DownloadProcessor {
     if (activeMirror) {
       console.log(`[DownProc] Using active mirror: ${activeMirror.name}`)
 
-      // Get the config file path and remote name
       const configFilePath = mirrorService.getActiveMirrorConfigPath()
       const remoteName = mirrorService.getActiveMirrorRemoteName()
 
@@ -555,8 +553,8 @@ export class DownloadProcessor {
     const downloadController = this.activeDownloads.get(releaseName)
     if (downloadController) {
       try {
-        downloadController.cancel()
-        console.log(`[DownProc] Paused download for ${releaseName}.`)
+        rcloneProcess.kill('SIGTERM')
+        console.log(`[DownProc] Stopped rclone process for ${releaseName}.`)
       } catch (cancelError) {
         console.error(`[DownProc] Error pausing download for ${releaseName}:`, cancelError)
       }

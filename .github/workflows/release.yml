@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest] # macOS disabled - dmg-builder download timeouts
 
     outputs:
       package_version: ${{ steps.build_details.outputs.package_version }}
@@ -138,5 +138,5 @@ jobs:
           fail_on_unmatched_files: false
           files: |
             artifacts/build-artifact-windows-latest/*
-            artifacts/build-artifact-macos-latest/*
             artifacts/build-artifact-ubuntu-latest/*
+            # artifacts/build-artifact-macos-latest/*
