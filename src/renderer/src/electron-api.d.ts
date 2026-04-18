@@ -19,6 +19,7 @@ declare global {
     api: {
       app: {
         getVersion: () => Promise<string>
+        getLocale: () => Promise<string>
       }
       dependency: DependencyAPIRenderer
       adb: AdbAPIRenderer
@@ -37,6 +38,8 @@ declare global {
         showManualInstallPicker: () => Promise<string | null>
         showApkFilePicker: () => Promise<string | null>
         showFolderPicker: () => Promise<string | null>
+        showLocalFolderPicker: () => Promise<string[] | null>
+        showLocalZipPicker: () => Promise<string[] | null>
       }
       wifiBookmarks: {
         getAll: () => Promise<WiFiBookmark[]>
