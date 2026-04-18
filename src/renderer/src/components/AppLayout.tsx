@@ -45,6 +45,7 @@ import { GameDialogProvider } from '@renderer/context/GameDialogProvider'
 import { useSettings } from '@renderer/hooks/useSettings'
 import { LanguageProvider } from '@renderer/context/LanguageProvider'
 import { useLanguage } from '@renderer/hooks/useLanguage'
+import LocalUploadDialog from './LocalUploadDialog'
 
 enum AppView {
   DEVICE_LIST,
@@ -407,6 +408,8 @@ const AppLayout: React.FC = () => {
                       >
                         {uploadButtonText}
                       </Button>
+
+                      <LocalUploadDialog />
 
                       <TabList
                         selectedValue={activeTab}

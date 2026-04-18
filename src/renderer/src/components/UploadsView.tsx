@@ -15,16 +15,10 @@ import { useUpload } from '../hooks/useUpload'
 import { useLanguage } from '../hooks/useLanguage'
 import { UploadItem } from '@shared/types'
 import { DismissRegular, DeleteRegular, ArrowCounterclockwiseRegular } from '@fluentui/react-icons'
-import LocalUploadDialog from './LocalUploadDialog'
 
 const useStyles = makeStyles({
   wrapper: {
     padding: '20px'
-  },
-  topBar: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    marginBottom: tokens.spacingVerticalM
   },
   emptyState: {
     textAlign: 'center',
@@ -163,10 +157,6 @@ const UploadsView: React.FC = () => {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.topBar}>
-        <LocalUploadDialog />
-      </div>
-
       {queue.length === 0 ? (
         <div className={styles.emptyState}>
           <Text size={200} weight="semibold">
