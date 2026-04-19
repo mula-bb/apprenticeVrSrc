@@ -1,6 +1,9 @@
 import { BrowserWindow } from 'electron'
 import { promises as fs, existsSync } from 'fs'
+import { join, basename } from 'path'
+import SevenZip from 'node-7z'
 import adbService from './adbService'
+import dependencyService from './dependencyService'
 import { EventEmitter } from 'events'
 import { debounce } from './download/utils'
 import { QueueManager } from './download/queueManager'
@@ -816,6 +819,49 @@ class DownloadService extends EventEmitter implements DownloadAPI {
           this.emit('installation:success', deviceId)
         }
         return success
+      } else if (stats.isFile() && filePath.toLowerCase().endsWith('.zip')) {
+        // ZIP installation - extract to temp dir then run through installationProcessor
+        // (which checks for install.txt and falls back to standard APK+OBB install)
+        console.log(`[Service installManualFile] Installing from ZIP: ${filePath}`)
+
+        const sevenZipPath = dependencyService.get7zPath()
+        if (!sevenZipPath) {
+          console.error('[Service installManualFile] 7zip not found, cannot extract ZIP')
+          return false
+        }
+
+        const tmpDir = join(this.downloadsPath, `manual_install_${Date.now()}`)
+        await fs.mkdir(tmpDir, { recursive: true })
+
+        try {
+          await new Promise<void>((resolve, reject) => {
+            const stream = SevenZip.extractFull(filePath, tmpDir, { $bin: sevenZipPath })
+            stream.on('end', resolve)
+            stream.on('error', reject)
+          })
+
+          const manualId = `manual-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+          const tempItem: DownloadItem = {
+            gameId: manualId,
+            releaseName: manualId,
+            packageName: '',
+            gameName: `Manual Install: ${basename(filePath, '.zip')}`,
+            status: 'Completed',
+            progress: 100,
+            extractProgress: 100,
+            addedDate: Date.now(),
+            downloadPath: tmpDir
+          }
+
+          const success = await this.installationProcessor.startInstallation(tempItem, deviceId)
+          if (success) {
+            console.log(`[Service installManualFile] Successfully installed from ZIP: ${filePath}`)
+            this.emit('installation:success', deviceId)
+          }
+          return success
+        } finally {
+          await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {})
+        }
       } else {
         console.error(`[Service installManualFile] Unsupported file type: ${filePath}`)
         return false

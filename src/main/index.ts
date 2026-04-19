@@ -606,9 +606,9 @@ app.whenReady().then(async () => {
 
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
       properties: ['openFile', 'openDirectory'],
-      title: 'Select APK file or folder to install',
+      title: 'Select APK file, ZIP archive, or folder to install',
       filters: [
-        { name: 'APK Files', extensions: ['apk'] },
+        { name: 'Installable Files', extensions: ['apk', 'zip'] },
         { name: 'All Files', extensions: ['*'] }
       ]
     })
